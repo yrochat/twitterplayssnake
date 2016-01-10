@@ -1,0 +1,1 @@
+display <- init_board()

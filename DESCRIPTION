@@ -1,8 +1,8 @@
 Package: twitterplayssnake
-Title: What the Package Does (one line, title case)
+Title: Play snake collectively on Twitter
 Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Authors@R: person("Yannick", "Rochat", email = "yannick.rochat@gmail.com", role = c("aut", "cre"))
+Description: All functions necessary for a snake game, and some functions to deal with Twitter interaction.
 Depends: R (>= 3.2.3)
 License: What license is it under?
 LazyData: true
