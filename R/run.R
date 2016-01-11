@@ -1,17 +1,3 @@
-# 0. Twitter authentication
-# 1. Load last state
-# 2. Is it a new game ?
-# 2a. If yes, initialise a game, tweet it and BREAK.
-# 2b. If no, get tweets from the last 5 minutes. 
-# 2ba. If none, KEEP SAME DIRECTION.
-# 2bb. If yes, Extract direction and username from last tweet.
-# 3a. If new, update usernames count.
-# 3b. If an old tweet, drop username.
-# 4. 
-
-
-
-
 source("my_tokens.R")
 
 # callback url http://127.0.0.1:1410
@@ -61,16 +47,23 @@ if (nrow(ok_mentions) > 0) {
   regex <- regexpr(directions.collapsed, ok_mentions$text)
   regex <- match(regmatches(ok_mentions$text, regex), directions.df$directions)
   if (length(regex) == 1) {
-  	display$direction <- as.numeric(regex)
+  	display$lastmove <- ok_mentions$screenName
+  	display$direction <- as.numeric(directions.df$code[regex])
   } else {
-  	display$direction <- as.numeric(sample(directions.df$code[regex], 1))
+  	sampled <- sample(1:length(regex), 1)
+  	display$lastmove <- directions.df$screenName[regex][sampled]
+  	display$direction <- as.numeric(directions.df$code[regex][sampled])
   }
   update_board(display, new_direction = display$direction)
 } else {
   update_board(display, new_direction = display$direction)	
 }
 
+tweet(draw_board(display))
 
+display$lastmove <- ""
+
+save(display, file = "display.Rdata")
 
 
 

@@ -10,7 +10,12 @@ is_on_the_border <- function(pos1, pos2, height, width) {
 init_board <- function(height = 5, width = 10) {
 
   # empty board
-  display <- list(board = matrix(), mouse = numeric(), snake = vector(), direction = numeric(), finished = logical())
+  display <- list(board = matrix(), 
+                  mouse = numeric(), 
+                  snake = vector(), 
+                  direction = numeric(), 
+                  finished = logical(),
+                  lastmove = character())
 
   display$mouse <- sample(width * height, 1)
   display$snake <- sample(width * height, 1)  
@@ -56,7 +61,7 @@ directions.df <- data.frame(directions = directions, code = as.vector(sapply(1:4
 
 directions.collapsed <- paste0(directions.df$directions, collapse = "|")
 
-update_board <- function(display = display, new_direction = display$direction) {
+update_board <- function(display = display) {
   
 }
 
