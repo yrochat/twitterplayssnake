@@ -19,18 +19,20 @@ load("display.Rdata")
 # If the game was finished, start a new one and stop the script
 
 if (display$finished == T) {
-  display <- init_board()
+  display <- init_board(10, 10)
   tweet(draw_board(display))
   save(display, file = "display.Rdata")
   stop("Game initialised")
 }
 
-# If the game was not finished, get the last tweets
+# that's id_threshold
 
 load("last_mention_id.Rdata")
 
+# If the game was not finished, get the last tweets 
+
 last_mentions <- twListToDF(mentions())
-last_mentions <- last_mentions[last_mentions$id > id_threshold,]
+last_mentions <- last_mentions[last_mentions$id > as.numeric(id_threshold),]
 
 # We update the value for the last ID
 
@@ -51,15 +53,18 @@ if (nrow(ok_mentions) > 0) {
   	display$direction <- as.numeric(directions.df$code[regex])
   } else {
   	sampled <- sample(1:length(regex), 1)
-  	display$lastmove <- directions.df$screenName[regex][sampled]
+  	display$lastmove <- ok_mentions$screenName[sampled]
   	display$direction <- as.numeric(directions.df$code[regex][sampled])
   }
-  update_board(display, new_direction = display$direction)
-} else {
-  update_board(display, new_direction = display$direction)	
-}
+} 
 
-tweet(draw_board(display))
+display <- update_board(display)	
+
+if (display$lastmove == "") {
+  tweet(draw_board(display))	
+} else {
+  tweet(paste0(draw_board(display), "\nLast move by @", display$lastmove, collapse = ""))	
+}
 
 display$lastmove <- ""
 

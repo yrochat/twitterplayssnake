@@ -7,15 +7,17 @@ is_on_the_border <- function(pos1, pos2, height, width) {
   pos1 == pos2 | any(((pos1 - 1) %/% width + 1) %in% c(1, height)) | any(((pos1) %% width) %in% c(0, 1))
 }
 
-init_board <- function(height = 5, width = 10) {
+init_board <- function(height, width) {
 
   # empty board
   display <- list(board = matrix(), 
                   mouse = numeric(), 
                   snake = vector(), 
                   direction = numeric(), 
-                  finished = logical(),
+                  finished = F,
                   lastmove = character())
+
+  display$board <- matrix(data = 0, nrow = height, ncol = width, byrow = F)
 
   display$mouse <- sample(width * height, 1)
   display$snake <- sample(width * height, 1)  
@@ -25,9 +27,22 @@ init_board <- function(height = 5, width = 10) {
   }
 
   display$direction <- sample(4, 1)
-  display$board <- matrix(data = 0, nrow = height, ncol = width)
   display$board[display$mouse] <- 5
   display$board[display$snake] <- 6
+  
+  if (display$direction == 1) {
+  	display$snake[2] <- display$snake - 10
+    display$board[display$snake[2]] <- 1
+  } else if (display$direction == 2) {
+    display$snake[2] <- display$snake + 1
+    display$board[display$snake[2]] <- 2
+  } else if (display$direction == 3) {
+    display$snake[2] <- display$snake + 10
+    display$board[display$snake[2]] <- 3
+  } else {
+    display$snake[2] <- display$snake - 1
+    display$board[display$snake[2]] <- 4
+  }
   
   display$finished <- F
 
@@ -61,8 +76,32 @@ directions.df <- data.frame(directions = directions, code = as.vector(sapply(1:4
 
 directions.collapsed <- paste0(directions.df$directions, collapse = "|")
 
-update_board <- function(display = display) {
+update_board <- function(display, new_direction) {
+  if (display$direction == 1) {
+  	# serpent sur le bord droite ?
+    next_move <- display$snake[1] + 10
+  } else if (display$direction == 2) {
+  	# serpent sur le bord supérieur ?
+    next_move <- display$snake[1] - 1
+  } else if (display$direction == 3) {
+    # serpent sur le bord gauche ?
+  	next_move <- display$snake[1] - 10
+  } else if (display$direction == 4) {
+    # serpent sur le bord inférieur ?
+  	next_move <- display$snake[1] + 1
+  }
   
+  if (next_move == display$mouse) {
+    # ajouter l'élément au serpent sans en enlever
+    # déterminer une nouvelle souris
+  } else if (next_move %in% display$snake) {
+  	# ajouter l'élément au serpent en enlevant le dernier
+  	display$finished <- T
+  } else {
+    # ajouter l'élément au serpent en enlevant le dernier
+  }
+  
+  return(display)
 }
 
 
