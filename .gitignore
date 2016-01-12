@@ -1,4 +1,5 @@
 .Rproj.user
 *.Rhistory
 *.RData
+*.txt
 my_tokens.R
