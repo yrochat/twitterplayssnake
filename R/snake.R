@@ -74,6 +74,27 @@ directions.df <- data.frame(directions = directions, code = as.vector(sapply(1:4
 
 directions.collapsed <- paste0(directions.df$directions, collapse = "|")
 
+update_directions <- function(display, ok_mentions) {
+  if (nrow(ok_mentions) > 0) {
+    regex <- regexpr(directions.collapsed, ok_mentions$text)
+    regex <- match(regmatches(ok_mentions$text, regex), directions.df$directions)
+    if (length(regex) == 1) {
+      display$lastmove <- ok_mentions$screenName
+      new_direction <- as.numeric(directions.df$code[regex])
+    } else {
+      sampled <- sample(1:length(regex), 1)
+      display$lastmove <- ok_mentions$screenName[sampled]
+      new_direction <- as.numeric(directions.df$code[regex][sampled])
+    }
+    if ((display$direction + new_direction) %in% c(4, 6)) {
+      display$finished <- T
+    } else {
+      display$direction <- new_direction
+    }
+  }
+  return(display)
+}
+
 update_board <- function(display) {
   if (display$direction == 1) {
     # serpent sur le bord droite ?
@@ -106,8 +127,6 @@ update_board <- function(display) {
 
   # si le serpent a atteint la souris…
   if (next_move == display$mouse) {
-  	
-  	
     # déterminer une nouvelle souris
     display$mouse <- sample(which(display$board == 0), 1)
     display$board[display$mouse] <- 5
@@ -136,28 +155,11 @@ reinit <- function(logi, height, width) {
 
 get_directions <- function(last_mentions) {
   ok_mentions <- last_mentions[grepl(directions.collapsed, last_mentions$text),]	
+  ok_mentions <- ok_mentions[!duplicated(ok_mentions$screenName),]
+  return(ok_mentions)
 }
 
-update_directions <- function(display, ok_mentions) {
-  if (nrow(ok_mentions) > 0) {
-    regex <- regexpr(directions.collapsed, ok_mentions$text)
-    regex <- match(regmatches(ok_mentions$text, regex), directions.df$directions)
-    if (length(regex) == 1) {
-      display$lastmove <- ok_mentions$screenName
-      new_direction <- as.numeric(directions.df$code[regex])
-    } else {
-      sampled <- sample(1:length(regex), 1)
-      display$lastmove <- ok_mentions$screenName[sampled]
-      new_direction <- as.numeric(directions.df$code[regex][sampled])
-    }
-    if ((display$direction + new_direction) %in% c(4, 6)) {
-      display$finished <- T
-    } else {
-      display$direction <- new_direction
-    }
-  }
-  return(display)
-}
+
 
 
 
