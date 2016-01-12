@@ -1,5 +1,3 @@
-rm(list=ls())
-
 library(httr)
 library(twitteR)
 
@@ -76,40 +74,90 @@ directions.df <- data.frame(directions = directions, code = as.vector(sapply(1:4
 
 directions.collapsed <- paste0(directions.df$directions, collapse = "|")
 
-update_board <- function(display, new_direction) {
+update_board <- function(display) {
   if (display$direction == 1) {
-  	# serpent sur le bord droite ?
-    next_move <- display$snake[1] + 10
+    # serpent sur le bord droite ?
+    next_move <- (display$snake[1] + ncol(display$board)) %% (height * width)
   } else if (display$direction == 2) {
   	# serpent sur le bord supérieur ?
     next_move <- display$snake[1] - 1
+    if (next_move %% nrow(display$board) == 0) {
+    	  next_move <- next_move + nrow(display$board)
+    }
   } else if (display$direction == 3) {
     # serpent sur le bord gauche ?
-  	next_move <- display$snake[1] - 10
+  	next_move <- (display$snake[1] - ncol(display$board)) %% (height * width)
   } else if (display$direction == 4) {
     # serpent sur le bord inférieur ?
   	next_move <- display$snake[1] + 1
+  	if (next_move %% nrow(display$board) == 1) {
+      next_move <- next_move - nrow(display$board)
+    }
+  }
+
+  # donner serpent au premier élément
+  display$board[next_move] <- 6
+    
+  # donner la direction au second élément
+  display$board[display$snake[1]] <- display$direction
+
+  # ajouter l'élément au serpent
+  display$snake <- c(next_move, display$snake)
+
+  # si le serpent a atteint la souris…
+  if (next_move == display$mouse) {
+  	
+  	
+    # déterminer une nouvelle souris
+    display$mouse <- sample(which(display$board == 0), 1)
+    display$board[display$mouse] <- 5
+  } else {
+    # et sinon, enlever le dernier
+    display$board[display$snake[length(display$snake)]] <- 0
+    display$snake <- display$snake[-length(display$snake)]
   }
   
-  if (next_move == display$mouse) {
-    # ajouter l'élément au serpent sans en enlever
-    # déterminer une nouvelle souris
-  } else if (next_move %in% display$snake) {
-  	# ajouter l'élément au serpent en enlevant le dernier
+  # si le serpent s'est mordu
+  if (any(duplicated(display$snake))) {  	
   	display$finished <- T
-  } else {
-    # ajouter l'élément au serpent en enlevant le dernier
   }
   
   return(display)
 }
 
+reinit <- function(logi, height, width) {
+  if (logi == T) {
+    display <- init_board(height, width)
+    tweet(draw_board(display))
+    save(display, file = "display.Rdata")
+    stop("Game initialised")
+  }
+}
 
+get_directions <- function(last_mentions) {
+  ok_mentions <- last_mentions[grepl(directions.collapsed, last_mentions$text),]	
+}
 
-
-
-
-
+update_directions <- function(display, ok_mentions) {
+  if (nrow(ok_mentions) > 0) {
+    regex <- regexpr(directions.collapsed, ok_mentions$text)
+    regex <- match(regmatches(ok_mentions$text, regex), directions.df$directions)
+    if (length(regex) == 1) {
+      display$lastmove <- ok_mentions$screenName
+      new_direction <- as.numeric(directions.df$code[regex])
+    } else {
+      sampled <- sample(1:length(regex), 1)
+      display$lastmove <- ok_mentions$screenName[sampled]
+      new_direction <- as.numeric(directions.df$code[regex][sampled])
+    }
+    if ((display$direction + new_direction) %in% c(4, 6)) {
+      display$finished <- T
+    } else {
+      display$direction <- new_direction
+    }
+  }
+  return(display)
+}
 
 
 

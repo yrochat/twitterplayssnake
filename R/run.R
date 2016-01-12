@@ -1,4 +1,10 @@
+rm(list=ls())
+
 source("my_tokens.R")
+source("snake.R")
+
+height <- 10
+width <- 10
 
 # callback url http://127.0.0.1:1410
 
@@ -7,7 +13,7 @@ setup_twitter_oauth(api_key, api_secret, access_token, access_token_secret)
 
 # run only the first time
 #
-# display <- init_board()
+# display <- init_board(10, 10)
 # tweet(draw_board(display))
 # save(display, file = "display.Rdata")
 #
@@ -18,16 +24,11 @@ load("display.Rdata")
 
 # If the game was finished, start a new one and stop the script
 
-if (display$finished == T) {
-  display <- init_board(10, 10)
-  tweet(draw_board(display))
-  save(display, file = "display.Rdata")
-  stop("Game initialised")
-}
+reinit(display$finished, height, width)
 
 # that's id_threshold
 
-load("last_mention_id.Rdata")
+id_threshold <- scan("last_mention_id.txt", quiet = T)
 
 # If the game was not finished, get the last tweets 
 
@@ -38,27 +39,18 @@ last_mentions <- last_mentions[last_mentions$id > as.numeric(id_threshold),]
 
 id_threshold <- last_mentions$id[1]
 if (length(id_threshold) > 0) {
-  save(id_threshold, file = "last_mention_id.Rdata")
+  cat(id_threshold, file = "last_mention_id.txt")
 }
 
 # We select the tweets with values for direction
 
-ok_mentions <- last_mentions[grepl(directions.collapsed, last_mentions$text),]
+ok_mentions <- get_directions(last_mentions)
 
-if (nrow(ok_mentions) > 0) {
-  regex <- regexpr(directions.collapsed, ok_mentions$text)
-  regex <- match(regmatches(ok_mentions$text, regex), directions.df$directions)
-  if (length(regex) == 1) {
-  	display$lastmove <- ok_mentions$screenName
-  	display$direction <- as.numeric(directions.df$code[regex])
-  } else {
-  	sampled <- sample(1:length(regex), 1)
-  	display$lastmove <- ok_mentions$screenName[sampled]
-  	display$direction <- as.numeric(directions.df$code[regex][sampled])
-  }
-} 
+display <- update_directions(display, ok_mentions)
 
 display <- update_board(display)	
+
+display
 
 if (display$lastmove == "") {
   tweet(draw_board(display))	
