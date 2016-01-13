@@ -68,13 +68,13 @@ draw_board <- function(display) {
 directions <- c("droite", "right", "rightwards", "➡",
                 "haut", "top", "upwards", "\u2b06",
                 "gauche", "left", "leftwards", "\u2b05",
-                "bas", "bottom", "downwards", "\u2b07")
+                "bas", "down", "downwards", "\u2b07")
                 
 directions.df <- data.frame(directions = directions, code = as.vector(sapply(1:4, function(n) rep(n, 4))), stringsAsFactors = F)
 
 directions.collapsed <- paste0(directions.df$directions, collapse = "|")
 
-update_directions <- function(display, ok_mentions) {
+update_directions <- function(display, ok_mentions = data.frame()) {
   if (nrow(ok_mentions) > 0) {
     regex <- regexpr(directions.collapsed, ok_mentions$text)
     regex <- match(regmatches(ok_mentions$text, regex), directions.df$directions)
@@ -91,6 +91,8 @@ update_directions <- function(display, ok_mentions) {
     } else {
       display$direction <- new_direction
     }
+  } else {
+  	display$lastmove <- ""
   }
   return(display)
 }
@@ -144,17 +146,14 @@ update_board <- function(display) {
   return(display)
 }
 
-reinit <- function(logi, height, width) {
-  if (logi == T) {
-    display <- init_board(height, width)
-    tweet(draw_board(display))
-    save(display, file = "display.Rdata")
-    stop("Game initialised")
-  }
+reinit <- function(height, width) {
+  display <- init_board(height, width)
+  tweet(paste0(draw_board(display), "\n\nNew game !", collapse = ""))
+  save(display, file = "display.Rdata")
 }
 
 get_directions <- function(last_mentions) {
-  ok_mentions <- last_mentions[grepl(directions.collapsed, last_mentions$text),]	
+  ok_mentions <- last_mentions[grepl(directions.collapsed, last_mentions$text),]
   ok_mentions <- ok_mentions[!duplicated(ok_mentions$screenName),]
   return(ok_mentions)
 }
