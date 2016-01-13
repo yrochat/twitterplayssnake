@@ -13,7 +13,7 @@ init_board <- function(height, width) {
                   snake = vector(), 
                   direction = numeric(), 
                   finished = F,
-                  lastmove = character())
+                  lastmove = "")
 
   display$board <- matrix(data = 0, nrow = height, ncol = width, byrow = F)
 
@@ -66,7 +66,7 @@ draw_board <- function(display) {
 }
 
 directions <- c("droite", "right", "rightwards", "➡",
-                "haut", "top", "upwards", "\u2b06",
+                "haut", "up", "upwards", "\u2b06",
                 "gauche", "left", "leftwards", "\u2b05",
                 "bas", "down", "downwards", "\u2b07")
                 
@@ -86,7 +86,7 @@ update_directions <- function(display, ok_mentions = data.frame()) {
       display$lastmove <- ok_mentions$screenName[sampled]
       new_direction <- as.numeric(directions.df$code[regex][sampled])
     }
-    if ((display$direction + new_direction) %in% c(4, 6)) {
+    if ((display$direction != new_direction) && ((display$direction + new_direction) %in% c(4, 6))) {
       display$finished <- T
     } else {
       display$direction <- new_direction

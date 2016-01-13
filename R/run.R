@@ -32,7 +32,7 @@ if (debug) print(display)
 
 id_threshold <- scan("last_mention_id.txt", quiet = T)
 
-if (debug) cat(as.character(id_threshold))
+if (debug) print(as.character(id_threshold))
 
 # If the game was not finished, get the last tweets 
 
