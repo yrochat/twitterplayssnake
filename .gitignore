@@ -2,4 +2,5 @@
 *.Rhistory
 *.RData
 *.txt
+*.Rapp.history
 my_tokens.R
