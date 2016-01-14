@@ -97,7 +97,23 @@ update_directions <- function(display, ok_mentions = data.frame()) {
   return(display)
 }
 
+update_mouse <- function(display) {
+  display$board[display$mouse] <- 0
+  	
+  temp_mouse <- display$mouse + c(-1, +1, -10, +10)
+  temp_mouse <- temp_mouse[temp_mouse %in% 1:100]
+  display$mouse <- sample(temp_mouse, 1)
+    
+  display$board[display$mouse] <- 5
+  
+  return(display)
+}
+
 update_board <- function(display) {
+  if (sample(5, 1) == 1) {
+    display <- update_mouse(display)
+  }
+	
   if (display$direction == 1) {
     # serpent sur le bord droite ?
     next_move <- (display$snake[1] + ncol(display$board)) %% (height * width)
