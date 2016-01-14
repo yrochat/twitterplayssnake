@@ -4,3 +4,4 @@
 *.txt
 *.Rapp.history
 my_tokens.R
+.log
