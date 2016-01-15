@@ -1,6 +1,3 @@
-library(httr)
-library(twitteR)
-
 ### the name speaks for itself
 
 is_on_the_border <- function(pos1, pos2, height, width) {
@@ -172,7 +169,7 @@ update_board <- function(display) {
     # et sinon, enlever le dernier
     display$board[display$snake[length(display$snake)]] <- 0
     display$snake <- display$snake[-length(display$snake)]
-    # et peut-être déplacer la souris
+    # et peut-être déplacer la sourise
     if (sample(5, 1) == 1) {
       display <- update_mouse(display)
     }

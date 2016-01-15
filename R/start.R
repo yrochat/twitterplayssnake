@@ -2,7 +2,7 @@ rm(list=ls())
 
 debug <- T
 
-setwd("/home/yannicksarah/twitter_plays_snake")
+setwd("your_working_directory")
 
 ##################
 ### Dimensions ###
@@ -37,7 +37,7 @@ library(lubridate)
 print(now())
 
 minute_now <- minute(now())
-# minute_now <- 0
+#minute_now <- 0
 
 print(sum(display$board %in% 1:4))
 
