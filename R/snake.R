@@ -1,9 +1,13 @@
 library(httr)
 library(twitteR)
 
+### the name speaks for itself
+
 is_on_the_border <- function(pos1, pos2, height, width) {
   pos1 == pos2 | any(((pos1 - 1) %/% width + 1) %in% c(1, height)) | any(((pos1) %% width) %in% c(0, 1))
 }
+
+### the first time, and after « game over »
 
 init_board <- function(height, width) {
 
@@ -47,6 +51,8 @@ init_board <- function(height, width) {
   return(display)
 }
 
+### which emoji to draw
+
 # 0 empty square \u2b1c
 # 1 right arrow  ➡
 # 2 up    arrow  \u2b06
@@ -57,6 +63,8 @@ init_board <- function(height, width) {
 
 emoji.table <- data.frame(code = 0:6, emoji = c("\u2b1c", "➡", "\u2b06", "\u2b05", "\u2b07", "\U0001f42d", "\xF0\x9F\x90\x8D"), stringsAsFactors = F)
 
+# I don't remember what that one does… :-P
+
 draw_board <- function(display) {
   tweet <- lapply(1:nrow(display$board), function(n) emoji.table$emoji[match(display$board[n, ], emoji.table$code)])
   tweet <- lapply(tweet, function(x) paste0(x, collapse = ""))
@@ -64,6 +72,8 @@ draw_board <- function(display) {
   tweet <- paste0(tweet, collapse = "\n")
   return(tweet)
 }
+
+### Which inputs to allow, and what they correspond to
 
 directions <- c("droite", "right", "rightwards", "➡",
                 "haut", "up", "upwards", "\u2b06",
@@ -74,10 +84,20 @@ directions.df <- data.frame(directions = directions, code = as.vector(sapply(1:4
 
 directions.collapsed <- paste0(directions.df$directions, collapse = "|")
 
+### Choose the direction of someone
+
+get_directions <- function(last_mentions) {
+  ok_mentions <- last_mentions[grepl(directions.collapsed, tolower(last_mentions$text)),]
+  ok_mentions <- ok_mentions[!duplicated(ok_mentions$screenName),]
+  return(ok_mentions)
+}
+
+### Take the direction proposed by someone and update the board
+
 update_directions <- function(display, ok_mentions = data.frame()) {
   if (nrow(ok_mentions) > 0) {
-    regex <- regexpr(directions.collapsed, ok_mentions$text)
-    regex <- match(regmatches(ok_mentions$text, regex), directions.df$directions)
+    regex <- regexpr(directions.collapsed, tolower(ok_mentions$text))
+    regex <- match(regmatches(tolower(ok_mentions$text), regex), directions.df$directions)
     if (length(regex) == 1) {
       display$lastmove <- ok_mentions$screenName
       new_direction <- as.numeric(directions.df$code[regex])
@@ -97,6 +117,8 @@ update_directions <- function(display, ok_mentions = data.frame()) {
   return(display)
 }
 
+### at random times the mouse moves
+
 update_mouse <- function(display) {
   display$board[display$mouse] <- 0
   	
@@ -108,6 +130,8 @@ update_mouse <- function(display) {
   
   return(display)
 }
+
+### big one with lot of exceptions
 
 update_board <- function(display) {
   if (sample(5, 1) == 1) {
@@ -162,16 +186,12 @@ update_board <- function(display) {
   return(display)
 }
 
+### if game over, restart
+
 reinit <- function(height, width) {
   display <- init_board(height, width)
   tweet(paste0(draw_board(display), "\n\nNew game !", collapse = ""))
   save(display, file = "display.Rdata")
-}
-
-get_directions <- function(last_mentions) {
-  ok_mentions <- last_mentions[grepl(directions.collapsed, last_mentions$text),]
-  ok_mentions <- ok_mentions[!duplicated(ok_mentions$screenName),]
-  return(ok_mentions)
 }
 
 
