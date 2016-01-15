@@ -37,9 +37,9 @@ if (length(last_mentions) > 0) {
   # Kind of a dirty hack
   # See why here: https://twitter.com/yrochat/status/687942528809734144
   temp_id_threshold <- last_mentions$id[1]
-  last_digit <- substring(temp_id_threshold, nchar(temp_id_threshold), nchar(temp_id_threshold))
+  last_digit <- substring(temp_id_threshold, nchar(temp_id_threshold) - 5, nchar(temp_id_threshold))
   last_digit <- as.numeric(last_digit) + 1
-  substring(temp_id_threshold, nchar(temp_id_threshold), nchar(temp_id_threshold)) <- as.character(last_digit %% 10)
+  substring(temp_id_threshold, nchar(temp_id_threshold) - 5, nchar(temp_id_threshold)) <- as.character(last_digit)
   
   if (debug) sprintf(as.character(temp_id_threshold))
   

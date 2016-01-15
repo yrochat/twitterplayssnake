@@ -120,9 +120,12 @@ update_mouse <- function(display) {
   display$board[display$mouse] <- 0
   	
   temp_mouse <- display$mouse + c(-1, +1, -10, +10)
-  temp_mouse <- temp_mouse[temp_mouse %in% 1:100]
-  display$mouse <- sample(temp_mouse, 1)
-    
+  temp_mouse <- temp_mouse[(temp_mouse %in% 1:100) & !(temp_mouse %in% which(display$board != 0))]
+
+  if (length(temp_mouse) > 0) {
+    display$mouse <- sample(temp_mouse, 1)    
+  }
+
   display$board[display$mouse] <- 5
   
   return(display)
