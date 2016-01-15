@@ -134,10 +134,6 @@ update_mouse <- function(display) {
 ### big one with lot of exceptions
 
 update_board <- function(display) {
-  if (sample(5, 1) == 1) {
-    display <- update_mouse(display)
-  }
-	
   if (display$direction == 1) {
     # serpent sur le bord droite ?
     next_move <- (display$snake[1] + ncol(display$board)) %% (height * width)
@@ -176,6 +172,10 @@ update_board <- function(display) {
     # et sinon, enlever le dernier
     display$board[display$snake[length(display$snake)]] <- 0
     display$snake <- display$snake[-length(display$snake)]
+    # et peut-être déplacer la souris
+    if (sample(5, 1) == 1) {
+      display <- update_mouse(display)
+    }
   }
   
   # si le serpent s'est mordu
