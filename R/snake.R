@@ -153,6 +153,7 @@ update_board <- function(display) {
       next_move <- next_move - nrow(display$board)
     }
   }
+  if (next_move == 0) next_move <- 100
 
   # donner serpent au premier élément
   display$board[next_move] <- 6
