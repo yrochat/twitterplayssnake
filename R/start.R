@@ -34,14 +34,13 @@ if (debug) print(display)
 
 library(lubridate)
 
-print(now())
+if (debug) print(now())
 
 minute_now <- minute(now())
-#minute_now <- 0
 
-print(sum(display$board %in% 1:4))
+if (debug) print(sum(display$board %in% 1:4))
 
-print(minute_now)
+if (debug) print(minute_now)
 
 # if the length of the snake is between 1 and 3 without the head => /10 minutes
 if (any(sum(display$board %in% 1:4) == c(1,2,3)) && (minute_now %% 10) == 0) {
