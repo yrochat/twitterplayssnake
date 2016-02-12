@@ -117,18 +117,22 @@ update_directions <- function(display, ok_mentions = data.frame()) {
 ### at random times the mouse moves
 
 update_mouse <- function(display) {
-  display$board[display$mouse] <- 0
+  if (any(display$board[display$mouse + c(-1, +1, -10, +10)] == 0)) {
+    display$board[display$mouse] <- 0
   	
-  temp_mouse <- display$mouse + c(-1, +1, -10, +10)
-  temp_mouse <- temp_mouse[(temp_mouse %in% 1:100) & !(temp_mouse %in% which(display$board != 0))]
+    temp_mouse <- display$mouse + c(-1, +1, -10, +10)
+    temp_mouse <- temp_mouse[(temp_mouse %in% 1:100) & !(temp_mouse %in% which(display$board != 0))]
 
-  if (length(temp_mouse) > 0) {
-    display$mouse <- sample(temp_mouse, 1)    
-  }
+    if (length(temp_mouse) > 1) {
+      display$mouse <- sample(temp_mouse, 1)    
+    } else if (length(temp_mouse) == 1) {
+      display$mouse <- temp_mouse
+    }
 
-  display$board[display$mouse] <- 5
+    display$board[display$mouse] <- 5
   
-  return(display)
+    return(display)
+  }
 }
 
 ### big one with lot of exceptions
